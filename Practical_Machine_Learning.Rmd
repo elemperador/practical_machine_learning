@@ -11,9 +11,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Background
 
-We consider 5 activity classes, gathered from 4 subjects wearing accelerometers mounted on their waist, left thigh, right arm, and right ankle. As basic input features to our classifier we use 12 attributes derived from a time window of 150ms. Finally, the classifier uses a committee AdaBoost that combines ten Decision Trees. The observed classifier accuracy is 99.4%.
+The goal of this project is to predict the manner in some persons performed some exercises. This is the "classe" variable in the training set. We will consider 5 activity classes, gathered from 4 subjects wearing accelerometers mounted on their waist, left thigh, right arm, and right ankle.
 
 ## Model Building
+
+The data was collected per user and for some period of time. There are several features available. We should remove some features which are irrelevant for prediction. Some features are only relevant for aggregated values calculated for observations with new window = yes. They should be removed, since they are not present in the test set. 
 
 ```{r echo=FALSE}
 library("data.table")
@@ -21,15 +23,11 @@ library("caret")
 
 pmlTrain <- fread('https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv')
 pmlTest <- fread('https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv')
-
-summary(pmlTrain)
-
-head(pmlTrain)
 ```
 
-The data was collected per user and for some period of time. There are several features available. We should remove some features which are irrelevant for prediction. Some features are only relevant for aggregated values calculated for observations with new window = yes. They should be removed, since they are not present in the test set. We will try a random forest and perform cross validation by splicing our data into train and test sets.
-
 ## Cross Validation
+
+We will try a random forest and perform cross validation by splicing our data into train and test sets.
 
 ```{r echo=FALSE}
 pmlTrainFilter <- pmlTrain[pmlTrain$new_window != "yes"]
@@ -48,13 +46,11 @@ training <- pmlTrainFilter[inTrain,]
 testing <- pmlTrainFilter[-inTrain,]
 
 modFit <- train(y=training$classe, x=training[,-c("classe")], data=training, method="rf")
+
+modFit
 ```
 
 ## Expected Out of Sample Error
-
-```{r}
-modFit
-```
 
 The trained model has high accuracy (98%). We can test its generalization by using the test set.
 
